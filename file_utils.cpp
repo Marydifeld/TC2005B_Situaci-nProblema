@@ -111,3 +111,70 @@ void indexToLetter(vector<int> cables) {
         }
     }
 }
+
+void tspBacktrack(int currentNode, int visitedCount, int currentCost, 
+                  vector<int>& currentPath, vector<int>& bestPath, 
+                  int& minCost, vector<bool>& visited, 
+                  const vector<vector<int>>& dists) {
+    int n = dists.size();
+
+    if (visitedCount == n) {
+        if (dists[currentNode][0] > 0) {
+            int totalCost = currentCost + dists[currentNode][0];
+            
+            if (totalCost < minCost) {
+                minCost = totalCost;
+                bestPath = currentPath;
+            }
+        }
+    } else {
+        for (int i = 0; i < n; i++) {
+            if (visited[i] == false && dists[currentNode][i] > 0) {
+                
+                if (currentCost + dists[currentNode][i] < minCost) {
+                    
+                    visited[i] = true;
+                    currentPath.push_back(i);
+
+                    tspBacktrack(i, visitedCount + 1, currentCost + dists[currentNode][i], 
+                                 currentPath, bestPath, minCost, visited, dists);
+
+                    currentPath.pop_back();
+                    visited[i] = false;
+                }
+            }
+        }
+    }
+}
+
+vector<int> solveTSP(const vector<vector<int>>& dists) {
+    int n = dists.size();
+    vector<int> currentPath;
+    vector<int> bestPath;
+    vector<bool> visited(n, false);
+    
+    int minCost = 1e9; 
+
+    visited[0] = true;
+    currentPath.push_back(0);
+
+    tspBacktrack(0, 1, 0, currentPath, bestPath, minCost, visited, dists);
+
+    if (bestPath.size() > 0) {
+        bestPath.push_back(0);
+    }
+
+    return bestPath;
+}
+
+void printTSP(const vector<int>& bestPath) {
+    int size = bestPath.size();
+    for (int i = 0; i < size; i++) {
+        cout << char('A' + bestPath[i]);
+        
+        if (i < size - 1) {
+            cout << " -> ";
+        }
+    }
+    cout << "\n";
+}
