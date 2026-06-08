@@ -19,3 +19,12 @@ void indexToLetter(vector<int> cables);
 void tspBacktrack(int currentNode, int visitedCount, int currentCost, vector<int>& currentPath, vector<int>& bestPath, int& minCost, vector<bool>& visited, const vector<vector<int>>& dists);
 vector<int> solveTSP(const vector<vector<int>>& dists);
 void printTSP(const vector<int>& bestPath);
+
+// Parte 3 - Flujo máximo (Edmonds-Karp)
+bool bfs(const vector<vector<int>>& residualGraph, int source, int sink, vector<int>& parent);
+int maxFlow(const vector<vector<int>>& capacity);
+
+// Parte 4 - Graham Scan (Convex Hull)
+int orientation(pair<int, int> p, pair<int, int> q, pair<int, int> r);
+vector<pair<int, int>> convexHull(vector<pair<int, int>> points);
+void printPolygon(const vector<pair<int, int>>& polygon);
