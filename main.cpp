@@ -3,6 +3,8 @@
 #include <stdexcept>
 #include <sstream> 
 #include <queue> 
+#include <climits>
+#include <algorithm>
 
 // --- Funciones de lectura de archivos ---
 
@@ -181,4 +183,190 @@ void printTSP(const vector<int>& bestPath) {
         }
     }
     cout << "\n";
+}
+
+// --- Parte 3: Flujo máximo (Edmonds-Karp) ---
+bool bfs(const vector<vector<int>>& residualGraph, int source, int sink, vector<int>& parent) {
+    int n = residualGraph.size();
+    vector<bool> visited(n, false);
+    queue<int> q;
+    q.push(source);
+    visited[source] = true;
+    parent[source] = -1;
+
+    while (!q.empty()) {
+        int u = q.front();
+        q.pop();
+
+        for (int v = 0; v < n; v++) {
+            if (!visited[v] &&
+                residualGraph[u][v] > 0) {
+                q.push(v);
+                parent[v] = u;
+                visited[v] = true;
+            }
+        }
+    }
+
+    return visited[sink];
+}
+
+int maxFlow(const vector<vector<int>>& capacity) {
+    int n = capacity.size();
+    int source = 0;
+    int sink = n - 1;
+
+    vector<vector<int>> residualGraph = capacity;
+    vector<int> parent(n);
+
+    int max_flow = 0;
+
+    while (bfs(residualGraph, source, sink, parent)) {
+        int pathFlow = INT_MAX;
+        for (int v = sink; v != source; v = parent[v]) {
+            int u = parent[v];
+            pathFlow = min(pathFlow, residualGraph[u][v]);
+        }
+
+        for (int v = sink; v != source; v = parent[v]) {
+            int u = parent[v];
+            residualGraph[u][v] -= pathFlow;
+            residualGraph[v][u] += pathFlow;
+        }
+
+        max_flow += pathFlow;
+    }
+
+    return max_flow;
+}
+
+// --- Parte 4: Graham Scan (Convex Hull) ---
+int orientation(pair<int, int> p, pair<int, int> q, pair<int, int> r) {
+    long long val = (long long)(q.second - p.second) * (r.first - q.first) - (long long)(q.first - p.first) * (r.second - q.second);
+
+    if (val == 0)
+        return 0;
+
+    return (val > 0) ? 1 : 2;
+}
+
+vector<pair<int, int>> convexHull(vector<pair<int, int>> points) {
+    int n = points.size();
+
+    if (n <= 3)
+        return points;
+
+    sort(points.begin(), points.end());
+
+    vector<pair<int, int>> lower;
+
+    for (auto p : points) {
+
+        while (lower.size() >= 2) {
+
+            auto q = lower[lower.size() - 1];
+            auto r = lower[lower.size() - 2];
+
+            long long cross = (long long)(q.first - r.first) * (p.second - r.second) - (long long)(q.second - r.second) * (p.first - r.first);
+
+            if (cross > 0)
+                break;
+
+            lower.pop_back();
+        }
+
+        lower.push_back(p);
+    }
+
+    vector<pair<int, int>> upper;
+
+    for (int i = n - 1; i >= 0; i--) {
+        auto p = points[i];
+
+        while (upper.size() >= 2) {
+            auto q = upper[upper.size() - 1];
+            auto r = upper[upper.size() - 2];
+
+            long long cross = (long long)(q.first - r.first) * (p.second - r.second) - (long long)(q.second - r.second) * (p.first - r.first);
+
+            if (cross > 0)
+                break;
+
+            upper.pop_back();
+        }
+
+        upper.push_back(p);
+    }
+
+    lower.pop_back();
+    upper.pop_back();
+
+    lower.insert(lower.end(), upper.begin(), upper.end());
+
+    return lower;
+}
+
+void printPolygon(
+    const vector<pair<int, int>>& polygon) {
+
+    for (auto p : polygon) {
+
+        cout << "("
+            << p.first
+            << ","
+            << p.second
+            << ") ";
+    }
+
+    cout << endl;
+}
+
+int main() {
+
+
+    try {
+        vector<vector<int>> dists, max_data;
+        vector<pair<int, int>> cor;
+
+        fileReader(
+            "C:/Users/kales/EvidenciaFinal/TC2005B_Situaci-nProblema/input/test1.txt",
+            dists,
+            max_data,
+            cor
+        );
+
+        cout << "--- 1. Forma optima de cablear con fibra optica (Prim) ---\n";
+
+        vector<int> cables = prim(dists);
+        indexToLetter(cables);
+
+        cout << "\n";
+
+        cout << "--- 2. Ruta mas corta para el personal de correspondencia (TSP) ---\n";
+
+        vector<int> optimalRoute = solveTSP(dists);
+        printTSP(optimalRoute);
+
+        cout << "\n";
+
+        cout << "--- 3. Flujo maximo de informacion ---\n";
+
+        cout << maxFlow(max_data) << endl;
+
+        cout << "\n";
+
+        cout << "--- 4. Lista de poligonos ---\n";
+
+        vector<pair<int, int>> hull =
+            convexHull(cor);
+
+        printPolygon(hull);
+
+        cout << "\n";
+    }
+    catch (const exception& e) {
+        cout << "ERROR: " << e.what() << endl;
+    }
+
+    return 0;
 }
