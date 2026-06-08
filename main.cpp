@@ -185,7 +185,7 @@ void printTSP(const vector<int>& bestPath) {
     cout << "\n";
 }
 
-// --- Parte 3: Flujo máximo (Edmonds-Karp) ---
+// --- Parte 3: Flujo mï¿½ximo (Edmonds-Karp) ---
 bool bfs(const vector<vector<int>>& residualGraph, int source, int sink, vector<int>& parent) {
     int n = residualGraph.size();
     vector<bool> visited(n, false);
@@ -329,7 +329,7 @@ int main() {
         vector<pair<int, int>> cor;
 
         fileReader(
-            "C:/Users/kales/EvidenciaFinal/TC2005B_Situaci-nProblema/input/test1.txt",
+            "./input/test1.txt",
             dists,
             max_data,
             cor
